@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Launcher for Linux / macOS / Git Bash.
+# Builds the jar from source on first use (or after source changes), then runs it.
+# Arguments are passed base64(UTF-8)-encoded so non-Latin topics survive the Windows JVM argv decoding.
+set -euo pipefail
+SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+JAR="$SKILL_DIR/target/wiki-interest-trends.jar"
+
+if ! command -v java >/dev/null 2>&1; then
+  echo "ERROR: Java 17+ is required but 'java' is not on PATH." >&2
+  exit 3
+fi
+
+needs_build() {
+  [ ! -f "$JAR" ] && return 0
+  [ -n "$(find "$SKILL_DIR/src/main" "$SKILL_DIR/pom.xml" -newer "$JAR" -print -quit 2>/dev/null)" ]
+}
+
+if needs_build; then
+  echo "[wiki-trends] building from source (first run, about a minute)..." >&2
+  if command -v mvn >/dev/null 2>&1; then MVN=mvn; else MVN="$SKILL_DIR/mvnw"; fi
+  if ! (cd "$SKILL_DIR" && "$MVN" -q -DskipTests package) >&2; then
+    echo "ERROR: build failed. Run '$MVN -DskipTests package' in $SKILL_DIR to see details." >&2
+    exit 3
+  fi
+fi
+
+args=(--b64)
+for a in "$@"; do
+  args+=("$(printf '%s' "$a" | base64 | tr -d '\n\r')")
+done
+exec java -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 -jar "$JAR" "${args[@]}"

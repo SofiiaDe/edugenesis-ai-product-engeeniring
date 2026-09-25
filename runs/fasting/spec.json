@@ -1,0 +1,35 @@
+{
+  "topics": [],
+  "langs": [
+    "pl",
+    "cs"
+  ],
+  "searchLang": "en",
+  "series": [
+    {
+      "id": "intermittent-fasting.pl",
+      "topic": "intermittent fasting",
+      "lang": "pl",
+      "titles": []
+    },
+    {
+      "id": "intermittent-fasting.cs",
+      "topic": "intermittent fasting",
+      "lang": "cs",
+      "titles": [
+        "Přerušovaný půst"
+      ]
+    }
+  ],
+  "months": 24,
+  "access": "all-access",
+  "redirects": true,
+  "maxRedirects": 25,
+  "maxLangs": 40,
+  "growthBasis": "normalized",
+  "weights": {
+    "volume": 0.3,
+    "confidence": 0.2,
+    "growth": 0.5
+  }
+}
