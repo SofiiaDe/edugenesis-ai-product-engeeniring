@@ -1,7 +1,7 @@
 ---
 name: wiki-interest-trends
 description: Measure how public interest in topics changes across Wikipedia language editions (Wikimedia pageviews) to help B2C founders decide which topics, courses or features to build next and which languages or markets to launch in. Use when the user asks whether interest in a topic is growing, compares topics or languages, looks for promising audiences, or wants charts or a shareable one-page PDF report based on Wikipedia data.
-compatibility: Requires Java 17+ and internet access (Wikimedia APIs; Maven Central on the first build). Works on Linux, macOS and Windows.
+compatibility: Requires Java 25+ and internet access (Wikimedia APIs; Maven Central on the first build). Works on Linux, macOS and Windows.
 ---
 
 # Wikipedia interest trends

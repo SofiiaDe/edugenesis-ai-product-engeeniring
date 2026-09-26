@@ -7,7 +7,7 @@ SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 JAR="$SKILL_DIR/target/wiki-interest-trends.jar"
 
 if ! command -v java >/dev/null 2>&1; then
-  echo "ERROR: Java 17+ is required but 'java' is not on PATH." >&2
+  echo "ERROR: Java 25+ is required but 'java' is not on PATH." >&2
   exit 3
 fi
 

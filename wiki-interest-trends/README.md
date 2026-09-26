@@ -14,7 +14,7 @@
 | Дані          | Java  | Місячні перегляди людей (`agent=user`) статті + загальний трафік мовного розділу; дисковий кеш                                             |
 | Аналітика     | Java  | YoY (сирий і нормалізований), тренд Тейла-Сена, тест Манна-Кендалла, сплески (robust z), сезонність                                        |
 | Довіра        | Java  | Явні перевірки: обсяг, значущість, послідовність, залежність від сплесків, raw vs normalized, історія статті → HIGH/MEDIUM/LOW з причинами |
-| Ранжування    | Java  | Бал 0–100 з вагами користувача (`--weights volume=…,growth=…,confidence=…`)                                                                |
+| Ранжування    | Java  | Бал 0–100 з вагами користувача (`--weights volume=…, growth=…, confidence=…`)                                                                |
 | Візуалізація  | Java  | `trend.png`, `growth.png` (Java2D), PDF на одну сторінку A4 (PDFBox)                                                                       |
 | Висновки      | Агент | Формулювання простою мовою (готові речення в `summary.md`), нотатки для PDF, наступні кроки                                                |
 
@@ -33,13 +33,14 @@ wiki-interest-trends/
 ├── src/main/java/wikitrends/ # CLI: Http (кеш, rate limit), WikiApi, Pipeline, Analyzer, Stats, Charts, Report
 ├── src/test/java/wikitrends/ # юніт-тести аналітики
 ├── evals/evals.json          # сценарії перевірки поведінки агента
+├── examples/notes-example.md # зразок нотаток для PDF-звіту
 ├── pom.xml, mvnw, mvnw.cmd, .mvn/wrapper/   # відтворювана збірка
 └── README.md
 ```
 
 ## Встановлення та запуск
 
-Потрібно: JDK 17+ та інтернет. Maven не обов'язковий — є Maven Wrapper (скриптовий, без бінарних файлів).
+Потрібно: JDK 25+ та інтернет. Maven не обов'язковий — є Maven Wrapper (скриптовий, без бінарних файлів).
 Скомпільованих файлів у репозиторії немає: запускач сам збирає `target/wiki-interest-trends.jar` під час першого
 запуску (~1 хв) і перезбирає після змін у коді. Збірка відтворювана (`project.build.outputTimestamp`): чиста копія дає
 побайтово той самий jar.
@@ -57,7 +58,7 @@ wiki-interest-trends/
 ```bash
 cd C:/Users/sofii/Work/edu-genesis/edugenesis-ai-product-engeeniring
 bash wiki-interest-trends/scripts/wiki-trends analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
-bash wiki-interest-trends/scripts/wiki-trends report --run wiki-trends-runs/fasting --notes notes.md --lang uk
+bash wiki-interest-trends/scripts/wiki-trends report --run wiki-trends-runs/fasting --notes wiki-interest-trends/examples/notes-example.md --lang uk
 ```
 
 **PowerShell (Windows):**
@@ -65,13 +66,13 @@ bash wiki-interest-trends/scripts/wiki-trends report --run wiki-trends-runs/fast
 ```powershell
 cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring
 & .\wiki-interest-trends\scripts\wiki-trends.ps1 analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
-& .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/fasting --notes notes.md --lang uk
+& .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/fasting --notes wiki-interest-trends/examples/notes-example.md --lang uk
 ```
 
 **cmd.exe:** `wiki-interest-trends\scripts\wiki-trends.cmd analyze ...` (ті самі аргументи).
 
 Запускати можна з будь-якої папки, якщо вказати повний шлях до скрипта: він сам знаходить свій jar, а результати
-пишуться відносно поточної папки. `notes.md` — ваші висновки для PDF (перший рядок `# Заголовок`, далі 5–8 пунктів).
+пишуться відносно поточної папки. `--notes` — файл із висновками для PDF (перший рядок `# Заголовок`, далі 5–8 пунктів). Його не зберігають у репозиторії: агент пише новий файл для кожного звіту. Зразок — [examples/notes-example.md](examples/notes-example.md).
 Інші команди (`search`, `resolve`, `cache`) і всі опції — у [references/cli.md](references/cli.md).
 
 Ручна збірка й тести: `./mvnw package` (PowerShell: `.\mvnw.cmd package`), 14 юніт-тестів.

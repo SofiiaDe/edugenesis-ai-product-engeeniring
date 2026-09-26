@@ -78,4 +78,4 @@ candidates and the article title per language.
 | `FETCH FAILED (HTTP 429 ...)` in a series       | Re-run the same command (finished requests are cached) or lower `WIKI_TRENDS_RPS`. |
 | `no article on this topic in xx.wikipedia`      | Content gap; use `search` to find a proxy article.                                 |
 | `with --spec, edit series in the spec file ...` | Do not mix `--spec` with `--topic/--langs/--article`.                              |
-| `build failed`                                  | Needs JDK 17+ (`java -version`) and access to Maven Central.                       |
+| `build failed`                                  | Needs JDK 25+ (`java -version`) and access to Maven Central.                       |

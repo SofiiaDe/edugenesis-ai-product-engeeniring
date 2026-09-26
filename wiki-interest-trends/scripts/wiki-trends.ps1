@@ -6,7 +6,7 @@ $SkillDir = Split-Path -Parent $PSScriptRoot
 $Jar = Join-Path $SkillDir 'target\wiki-interest-trends.jar'
 
 if (-not (Get-Command java -ErrorAction SilentlyContinue)) {
-    Write-Error "Java 17+ is required but 'java' is not on PATH."
+    Write-Error "Java 25+ is required but 'java' is not on PATH."
     exit 3
 }
 
