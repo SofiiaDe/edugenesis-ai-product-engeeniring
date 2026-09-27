@@ -58,7 +58,7 @@ wiki-interest-trends/
 ```bash
 cd C:/Users/sofii/Work/edu-genesis/edugenesis-ai-product-engeeniring
 bash wiki-interest-trends/scripts/wiki-trends analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
-bash wiki-interest-trends/scripts/wiki-trends report --run wiki-trends-runs/fasting --notes wiki-interest-trends/examples/notes-example.md --lang uk
+bash wiki-interest-trends/scripts/wiki-trends report --run wiki-trends-runs/fasting --lang uk
 ```
 
 **PowerShell (Windows):**
@@ -66,7 +66,7 @@ bash wiki-interest-trends/scripts/wiki-trends report --run wiki-trends-runs/fast
 ```powershell
 cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring
 & .\wiki-interest-trends\scripts\wiki-trends.ps1 analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
-& .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/fasting --notes wiki-interest-trends/examples/notes-example.md --lang uk
+& .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/fasting --lang uk
 ```
 
 **cmd.exe** (або PowerShell, якщо запуск `.ps1` заборонено політикою виконання):
@@ -74,14 +74,66 @@ cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring
 ```bat
 cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring
 wiki-interest-trends\scripts\wiki-trends.cmd analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
-wiki-interest-trends\scripts\wiki-trends.cmd report --run wiki-trends-runs/fasting --notes wiki-interest-trends/examples/notes-example.md --lang uk
+wiki-interest-trends\scripts\wiki-trends.cmd report --run wiki-trends-runs/fasting --lang uk
 ```
 
 У PowerShell перед шляхом до `.cmd` додайте `.\`: `.\wiki-interest-trends\scripts\wiki-trends.cmd analyze ...`.
 
 Запускати можна з будь-якої папки, якщо вказати повний шлях до скрипта: він сам знаходить свій jar, а результати
-пишуться відносно поточної папки. `--notes` — файл із висновками для PDF (перший рядок `# Заголовок`, далі 5–8 пунктів). Його не зберігають у репозиторії: агент пише новий файл для кожного звіту. Зразок — [examples/notes-example.md](examples/notes-example.md).
-Інші команди (`search`, `resolve`, `cache`) і всі опції — у [references/cli.md](references/cli.md).
+пишуться відносно поточної папки. Без `--notes` звіт сам пише висновки з даних (напрям, довіра, прогалини в контенті, наступні кроки). Щоб додати власні висновки, передайте `--notes файл.md` (перший рядок `# Заголовок`, далі 5–8 пунктів; зразок — [examples/notes-example.md](examples/notes-example.md)). Агент у Claude Code пише такий файл сам.
+### Приклад: тема українською, аналіз і PDF одним рядком (PowerShell)
+
+Кешбек у польській, українській, румунській та англійській Вікіпедії за 3 роки; звіт українською відкривається одразу:
+
+```powershell
+cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring; & .\wiki-interest-trends\scripts\wiki-trends.ps1 analyze --topic "Кешбек" --search-lang uk --langs pl,uk,ro,en --months 36 --out wiki-trends-runs/cashback; & .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/cashback --lang uk; Invoke-Item wiki-trends-runs\cashback\report.pdf
+```
+
+`--search-lang uk` потрібен, бо назва теми українською. Команди розділені `;` (у PowerShell 5.1 `&&` і `&` як роздільник не працюють).
+
+### Параметри
+
+Повний список у терміналі: `wiki-trends help` (PowerShell: `& .\wiki-interest-trends\scripts\wiki-trends.ps1 help`).
+Усі опції з деталями, формати вихідних файлів і типові помилки — у [references/cli.md](references/cli.md).
+
+**`analyze`** — зібрати дані й порахувати тренди:
+
+| Параметр | За замовчуванням | Що робить | Приклад |
+|---|---|---|---|
+| `--topic` | — | Тема: назва статті або Wikidata id. Можна повторювати, щоб порівняти кілька тем | `--topic "Astronomy"`, `--topic Q5048719` |
+| `--search-lang` | `en` | У якій Вікіпедії шукати назву з `--topic`. Потрібен для неанглійських назв | `--topic "Кешбек" --search-lang uk` |
+| `--langs` | мова пошуку | Мовні розділи для аналізу (коди Вікіпедії) або `all` — 40 найбільших, де є стаття | `--langs uk,pl,ro,en` |
+| `--months` | `36` | Довжина періоду в місяцях (3–130). Для порівняння рік до року — щонайменше 24 | `--months 24` |
+| `--end` | останній повний місяць | Останній місяць періоду | `--end 2025-12` |
+| `--out` | `wiki-trends-runs/<тема>_<мови>` | Папка для результатів | `--out wiki-trends-runs/cashback` |
+| `--article` | — | Задати статтю вручну (`мова:Назва`, кілька через `\|`), разом із `--label` | `--article "pl:Moneyback" --label "Cashback"` |
+| `--basis` | `normalized` | Зростання як частка від трафіку всієї Вікіпедії (`normalized`) чи в сирих переглядах (`raw`) | `--basis raw` |
+| `--weights` | `volume=0.3,growth=0.5,confidence=0.2` | Ваги для балу: обсяг, зростання, довіра | `--weights volume=0.6,growth=0.3,confidence=0.1` |
+| `--access` | `all-access` | Тип трафіку: `all-access`, `desktop`, `mobile-web`, `mobile-app` | `--access mobile-app` |
+| `--max-langs` | `40` | Скільки розділів брати для `--langs all` | `--max-langs 60` |
+| `--no-redirects` | вимкнено | Не додавати перегляди через перенаправлення | `--no-redirects` |
+| `--question` | — | Питання користувача; показується в summary і як заголовок PDF | `--question "Чи росте інтерес до кешбеку?"` |
+| `--chart-lang` | `en` | Мова підписів на PNG-графіках: `en` або `uk` | `--chart-lang uk` |
+| `--spec` | — | Перезапустити збережені ряди з `spec.json` з іншими параметрами | `--spec wiki-trends-runs/cashback/spec.json --months 60` |
+| `--offline` | вимкнено | Лише кешовані дані, без мережі | `--offline` |
+
+**`report`** — PDF на одну сторінку:
+
+| Параметр | За замовчуванням | Що робить |
+|---|---|---|
+| `--run` | — (обов'язковий) | Папка результатів `analyze` |
+| `--lang` | `en` | Мова звіту й висновків: `en` або `uk` |
+| `--notes` | висновки генеруються з даних | Власні висновки з файлу (`# Заголовок`, 5–8 пунктів) |
+| `--title` | питання або «Інтерес до теми …» | Заголовок звіту |
+| `--out` | `<run>/report.pdf` | Шлях до PDF |
+
+**Інші команди:**
+
+| Команда | Для чого | Приклад |
+|---|---|---|
+| `resolve` | Перевірити, на які статті відображається тема в кожній мові | `resolve --topic "Кешбек" --search-lang uk --langs pl,uk,ro,en` |
+| `search` | Знайти статті в одній Вікіпедії, коли прямої статті немає | `search --lang ro --query "cashback"` |
+| `cache` | Показати розмір кешу або очистити його (`--clear`) | `cache --clear` |
 
 Ручна збірка й тести: `./mvnw package` (PowerShell: `.\mvnw.cmd package`), 14 юніт-тестів.
 

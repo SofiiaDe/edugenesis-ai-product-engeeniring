@@ -63,7 +63,8 @@ final class Report {
             title = notes.getFirst().substring(2).strip();
             notes = notes.subList(1, notes.size());
         }
-        if (title == null) title = an.question != null ? an.question : t.t("trend.title");
+        if (notes.isEmpty()) notes = AutoNotes.build(an, lang); // no --notes: conclusions written from the data
+        if (title == null) title = an.question != null ? an.question : AutoNotes.title(an, lang);
         Path out = Path.of(a.get("out", dir.resolve("report.pdf").toString()));
         try (PDDocument doc = new PDDocument()) {
             Report r = new Report(doc);
@@ -186,7 +187,6 @@ final class Report {
             }
             if (cut)
                 warnings.add("notes were too long for one page and were truncated - shorten notes.md (aim for 5-8 bullets)");
-            if (notes.isEmpty()) warnings.add("no --notes given: the PDF has no conclusions section text");
             y -= 10;
 
             // --- chart (full width; the growth numbers are in the table)

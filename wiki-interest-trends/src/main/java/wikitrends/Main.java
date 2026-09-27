@@ -267,7 +267,7 @@ public final class Main {
                          Full-text search in one Wikipedia with views/month: find proxy articles when a topic has no direct article.
                 
                 report   --run DIR [--notes notes.md] [--title "..."] [--lang en|uk] [--out DIR/report.pdf]
-                         One-page PDF from a run plus your conclusions (notes.md).
+                         One-page PDF from a run. Without --notes the conclusions are generated from the data.
                 
                 cache    [--clear]      Show or clear the response cache.
                 Global:  --offline      Use cached responses only.

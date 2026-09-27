@@ -39,7 +39,8 @@ Outputs in `--out`:
 
 `report --run DIR [--notes notes.md] [--title "..."] [--lang en|uk] [--out DIR/report.pdf]`
 
-- Title: `--title`, else first line of notes if it starts with `# `, else the analysis question.
+- Without `--notes`, conclusions are generated from the analysis (direction, confidence, missing articles, next steps) in the `--lang` language.
+- Title: `--title`, else first line of notes if it starts with `# `, else the analysis question, else "Interest in <topic> on Wikipedia (<langs>)".
 - Notes format: `# Title`, `## Subheading`, `- bullet`, `1. numbered`, plain paragraphs. `**bold**` markers are
   stripped.
 - Layout (A4, one page): title, period and source, conclusions (notes), trend chart, growth chart (if space),
