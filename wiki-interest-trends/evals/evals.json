@@ -1,0 +1,67 @@
+{
+  "skill_name": "wiki-interest-trends",
+  "notes": "Scenario checks for running the skill end-to-end with a small model (e.g. Claude Haiku 4.5). Each expectation is checked against the agent's reply and the files it produced. Data changes monthly, so expectations are about behaviour, not exact numbers.",
+  "evals": [
+    {
+      "id": "fasting-pl-cs",
+      "prompt": "Порівняй зростання інтересу до інтервального голодування в польськомовній та чеськомовній Wikipedia за останні два роки.",
+      "expectations": [
+        "Runs analyze with --months 24 and --langs pl,cs (or equivalent)",
+        "Reports that pl.wikipedia has no article for the Wikidata item (content gap) instead of inventing Polish numbers",
+        "Tries `search --lang pl` for a proxy article, or explicitly explains why no proxy is used",
+        "For cs quotes views/month, GROWTH, raw YoY, direction and confidence copied from summary.md",
+        "Explains the LOW confidence (volume < 200 views/month) in plain words",
+        "Mentions that Wikipedia views are a curiosity proxy, not demand"
+      ]
+    },
+    {
+      "id": "astronomy-uk",
+      "prompt": "Ми думаємо додати курс з астрономії до освітнього застосунку. Чи зростає інтерес до цієї теми в україномовній Wikipedia, і наскільки цьому зростанню можна довіряти?",
+      "expectations": [
+        "Resolves the topic to Q333 (astronomy) and the uk article Астрономія",
+        "Answers the growth question directly with the direction from the table (not 'growing' unless GROWING)",
+        "Distinguishes raw decline from normalized decline and mentions the whole uk Wikipedia traffic change",
+        "Mentions the September seasonal peak (school year) as relevant for an education product",
+        "States confidence grade and the failed checks",
+        "Suggests validation outside Wikipedia"
+      ]
+    },
+    {
+      "id": "english-learning-report",
+      "prompt": "Ми створюємо застосунок для вивчення мов. Порівняй інтерес до вивчення англійської у вибраних нами мовних розділах — українському, польському, турецькому, в'єтнамському, індонезійському та португальському — та підготуй короткий звіт: які аудиторії варто дослідити наступними й чому?",
+      "expectations": [
+        "States that 'English language' article is used as a proxy for interest in learning English",
+        "Runs one analyze with --langs uk,pl,tr,vi,id,pt",
+        "Writes notes.md with a '# Title' line and runs report --lang uk",
+        "report.pdf exists and has exactly one page; the notes were not truncated",
+        "Recommends audiences using score, normalized growth and confidence from the table, with reasons",
+        "Notes that a language is not a country (pt: Brazil/Portugal)"
+      ]
+    },
+    {
+      "id": "follow-up-period",
+      "prompt": "(after english-learning-report) А якщо подивитися на останні 5 років замість 3?",
+      "expectations": [
+        "Re-runs with --spec <run>/spec.json --months 60 and a new --out, without re-resolving topics",
+        "Compares the new direction/confidence with the previous run and explains differences"
+      ]
+    },
+    {
+      "id": "markets-discovery",
+      "prompt": "У яких мовних розділах інтерес до медитації найшвидше зростає? Нам потрібні 3 кандидати для локалізації.",
+      "expectations": [
+        "Uses --langs all (largest editions) to scan, then re-runs the shortlist with explicit --langs",
+        "Picks candidates only among GROWING/STABLE with HIGH or MEDIUM confidence and explains the trade-off with volume",
+        "Mentions that small editions are noisy"
+      ]
+    },
+    {
+      "id": "ambiguous-topic",
+      "prompt": "Чи росте інтерес до Python у німецькій Вікіпедії?",
+      "expectations": [
+        "Checks the mapping: 'Python' may resolve to the snake genus; uses the programming language item (Q28865) or its de article",
+        "Says which article was used"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+target/
+wiki-trends-runs/
+*.class
+.idea/
+*.iml
+.vscode/
+runs/

@@ -1,0 +1,7 @@
+# Shell scripts must keep LF on every OS (CRLF breaks them on macOS/Linux: "/bin/sh^M: bad interpreter")
+wiki-interest-trends/mvnw               text eol=lf
+wiki-interest-trends/scripts/wiki-trends text eol=lf
+*.sh                                     text eol=lf
+# Windows scripts keep CRLF
+*.cmd                                    text eol=crlf
+*.ps1                                    text eol=crlf
