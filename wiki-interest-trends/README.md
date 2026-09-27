@@ -56,7 +56,7 @@ wiki-interest-trends/
 **Git Bash / Linux / macOS:**
 
 ```bash
-cd C:/Users/sofii/Work/edu-genesis/edugenesis-ai-product-engeeniring
+cd <корінь-репозиторію>
 bash wiki-interest-trends/scripts/wiki-trends analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
 bash wiki-interest-trends/scripts/wiki-trends report --run wiki-trends-runs/fasting --lang uk
 ```
@@ -64,7 +64,7 @@ bash wiki-interest-trends/scripts/wiki-trends report --run wiki-trends-runs/fast
 **PowerShell (Windows):**
 
 ```powershell
-cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring
+cd <корінь-репозиторію>
 & .\wiki-interest-trends\scripts\wiki-trends.ps1 analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
 & .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/fasting --lang uk
 ```
@@ -72,7 +72,7 @@ cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring
 **cmd.exe** (або PowerShell, якщо запуск `.ps1` заборонено політикою виконання):
 
 ```bat
-cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring
+cd <корінь-репозиторію>
 wiki-interest-trends\scripts\wiki-trends.cmd analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
 wiki-interest-trends\scripts\wiki-trends.cmd report --run wiki-trends-runs/fasting --lang uk
 ```
@@ -81,12 +81,14 @@ wiki-interest-trends\scripts\wiki-trends.cmd report --run wiki-trends-runs/fasti
 
 Запускати можна з будь-якої папки, якщо вказати повний шлях до скрипта: він сам знаходить свій jar, а результати
 пишуться відносно поточної папки. Без `--notes` звіт сам пише висновки з даних (напрям, довіра, прогалини в контенті, наступні кроки). Щоб додати власні висновки, передайте `--notes файл.md` (перший рядок `# Заголовок`, далі 5–8 пунктів; зразок — [examples/notes-example.md](examples/notes-example.md)). Агент у Claude Code пише такий файл сам.
+
 ### Приклад: тема українською, аналіз і PDF одним рядком (PowerShell)
 
-Кешбек у польській, українській, румунській та англійській Вікіпедії за 3 роки; звіт українською відкривається одразу:
+Кешбек у польській, українській, румунській та англійській Вікіпедії за 3 роки; звіт українською відкривається одразу.
+Запускайте з кореня репозиторію:
 
 ```powershell
-cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring; & .\wiki-interest-trends\scripts\wiki-trends.ps1 analyze --topic "Кешбек" --search-lang uk --langs pl,uk,ro,en --months 36 --out wiki-trends-runs/cashback; & .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/cashback --lang uk; Invoke-Item wiki-trends-runs\cashback\report.pdf
+& .\wiki-interest-trends\scripts\wiki-trends.ps1 analyze --topic "Кешбек" --search-lang uk --langs pl,uk,ro,en --months 36 --out wiki-trends-runs/cashback; & .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/cashback --lang uk; Invoke-Item wiki-trends-runs\cashback\report.pdf
 ```
 
 `--search-lang uk` потрібен, бо назва теми українською. Команди розділені `;` (у PowerShell 5.1 `&&` і `&` як роздільник не працюють).
