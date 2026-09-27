@@ -173,7 +173,9 @@ public final class Main {
         Pipeline p = new Pipeline(api);
         Analysis an = new Analysis();
         an.generatedAt = Instant.now().toString();
+        checkLangs(api, spec);
         if (specPath == null) p.resolveTopics(spec, an);
+        if (spec.series.isEmpty()) throw new IllegalArgumentException(notFound(api, spec));
         else an.warnings.add("series taken from " + specPath);
         dedupeIds(spec.series);
         String userEnd = spec.end; // keep "latest complete month" semantics on re-runs unless the user pinned --end
@@ -197,6 +199,52 @@ public final class Main {
         out.print(summary);
         // --report en|uk: build the PDF in the same run, into the same folder
         if (reportLang != null) Report.generate(dir, reportLang, a.get("notes"), a.get("title"), null);
+    }
+
+    /** Country codes people often type instead of Wikipedia language codes. */
+    private static final Map<String, String> LANG_HINTS = Map.ofEntries(
+            Map.entry("gr", "el (Greek)"), Map.entry("jp", "ja (Japanese)"), Map.entry("cn", "zh (Chinese)"),
+            Map.entry("kr", "ko (Korean)"), Map.entry("dk", "da (Danish)"), Map.entry("se", "sv (Swedish)"),
+            Map.entry("ee", "et (Estonian)"), Map.entry("by", "be (Belarusian)"), Map.entry("rs", "sr (Serbian)"),
+            Map.entry("il", "he (Hebrew)"), Map.entry("br", "pt (Portuguese)"), Map.entry("mx", "es (Spanish)"),
+            Map.entry("us", "en (English)"), Map.entry("gb", "en (English)"), Map.entry("at", "de (German)"),
+            Map.entry("ir", "fa (Persian)"), Map.entry("in", "hi (Hindi) or en"), Map.entry("vn", "vi (Vietnamese)"),
+            Map.entry("kz", "kk (Kazakh)"), Map.entry("si", "sl (Slovenian)"), Map.entry("am", "hy (Armenian)"));
+
+    /** Fails before any download if a language code is not an open Wikipedia edition (e.g. "ge"). */
+    static void checkLangs(WikiApi api, Spec spec) throws java.io.IOException {
+        Set<String> codes = new LinkedHashSet<>(spec.langs);
+        for (SeriesSpec s : spec.series) codes.add(s.lang);
+        codes.remove("all");
+        if (codes.isEmpty()) return;
+        Set<String> known = api.wikipediaLangs();
+        List<String> bad = new ArrayList<>();
+        for (String c : codes) {
+            if (known.contains(c)) continue;
+            String hint = LANG_HINTS.get(c.toLowerCase(Locale.ROOT));
+            bad.add("'" + c + "'" + (hint != null ? " (did you mean " + hint + "?)" : ""));
+        }
+        if (!bad.isEmpty())
+            throw new IllegalArgumentException("unknown Wikipedia language code " + String.join(", ", bad)
+                    + ". Use Wikipedia codes, not country codes: uk, pl, de, ka, cs, en ...");
+    }
+
+    /** Error text when no topic could be resolved: suggests real articles found by full-text search. */
+    static String notFound(WikiApi api, Spec spec) throws java.io.IOException {
+        StringBuilder sb = new StringBuilder();
+        for (String topic : spec.topics) {
+            sb.append("topic '").append(topic).append("' has no article with this exact title in ")
+                    .append(spec.searchLang).append(".wikipedia.");
+            List<WikiApi.SearchHit> hits = api.search(spec.searchLang, topic, 5);
+            if (!hits.isEmpty()) {
+                sb.append(" Similar articles (use the title as --topic, or the Q-id):");
+                for (WikiApi.SearchHit h : hits)
+                    sb.append("\n  ").append(h.title()).append(h.qid() != null ? "  (" + h.qid() + ")" : "")
+                            .append(h.description() != null ? " - " + h.description() : "");
+            }
+            sb.append('\n');
+        }
+        return sb.append("Nothing to analyse, no report written.").toString();
     }
 
     static void validate(Spec s) {

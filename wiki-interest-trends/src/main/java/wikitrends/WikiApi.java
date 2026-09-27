@@ -97,6 +97,25 @@ public final class WikiApi {
         return new Resolution(query, qid, label, desc, method, alternatives, titles);
     }
 
+    /** Language codes of all open Wikipedia editions (uk, pl, simple, be-tarask, ...), from the Wikimedia site matrix. */
+    public Set<String> wikipediaLangs() throws IOException {
+        String url = "https://meta.wikimedia.org/w/api.php?action=sitematrix&smtype=language&smlangprop=code%7Csite"
+                + "&smsiteprop=code%7Cclosed&format=json&formatversion=2";
+        JsonObject m = json(http.get(url, Duration.ofDays(7)).body()).getAsJsonObject("sitematrix");
+        Set<String> out = new TreeSet<>();
+        for (Map.Entry<String, JsonElement> e : m.entrySet()) {
+            if (!e.getValue().isJsonObject()) continue; // "count"
+            JsonObject lang = e.getValue().getAsJsonObject();
+            JsonArray sites = lang.getAsJsonArray("site");
+            if (sites == null) continue;
+            for (JsonElement s : sites) {
+                JsonObject site = s.getAsJsonObject();
+                if ("wiki".equals(str(site, "code")) && !site.has("closed")) out.add(str(lang, "code"));
+            }
+        }
+        return out;
+    }
+
     public record SearchHit(String title, String qid, String description) {
     }
 
