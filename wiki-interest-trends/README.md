@@ -69,7 +69,15 @@ cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring
 & .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/fasting --notes wiki-interest-trends/examples/notes-example.md --lang uk
 ```
 
-**cmd.exe:** `wiki-interest-trends\scripts\wiki-trends.cmd analyze ...` (ті самі аргументи).
+**cmd.exe** (або PowerShell, якщо запуск `.ps1` заборонено політикою виконання):
+
+```bat
+cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring
+wiki-interest-trends\scripts\wiki-trends.cmd analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
+wiki-interest-trends\scripts\wiki-trends.cmd report --run wiki-trends-runs/fasting --notes wiki-interest-trends/examples/notes-example.md --lang uk
+```
+
+У PowerShell перед шляхом до `.cmd` додайте `.\`: `.\wiki-interest-trends\scripts\wiki-trends.cmd analyze ...`.
 
 Запускати можна з будь-якої папки, якщо вказати повний шлях до скрипта: він сам знаходить свій jar, а результати
 пишуться відносно поточної папки. `--notes` — файл із висновками для PDF (перший рядок `# Заголовок`, далі 5–8 пунктів). Його не зберігають у репозиторії: агент пише новий файл для кожного звіту. Зразок — [examples/notes-example.md](examples/notes-example.md).
@@ -93,7 +101,7 @@ cd C:\Users\sofii\Work\edu-genesis\edugenesis-ai-product-engeeniring
 - **Ввічливість до API.** User-Agent за етикетом Wikimedia, глобальний rate limit (10 запитів/с), повтори з
   урахуванням `Retry-After`; збій однієї мови не зупиняє скан 40 мов.
 
-## Як я перевіряв
+## Перевірка
 
 1. **Юніт-тести** (`AnalyzerTest`, `StatsTest`, 14 тестів) на синтетичних рядах: рівне зростання → GROWING/HIGH;
    плоский ряд → STABLE; один вірусний місяць → сплеск і LOW; падіння всієї Вікіпедії при плоскій темі →

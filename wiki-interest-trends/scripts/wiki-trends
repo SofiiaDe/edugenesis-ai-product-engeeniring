@@ -20,8 +20,9 @@ if needs_build; then
   echo "[wiki-trends] building from source (first run or after code changes, about a minute)..." >&2
   # always the Maven Wrapper: pins the Maven version (.mvn/wrapper) for reproducible builds
   MVN="$SKILL_DIR/mvnw"
-  if ! (cd "$SKILL_DIR" && "$MVN" -q -DskipTests package) >&2; then
-    echo "ERROR: build failed. Run '$MVN -DskipTests package' in $SKILL_DIR to see details." >&2
+  # run via sh: works even if the executable bit was lost (e.g. repo committed from Windows)
+  if ! (cd "$SKILL_DIR" && sh "$MVN" -q -DskipTests package) >&2; then
+    echo "ERROR: build failed. Run 'sh mvnw -DskipTests package' in $SKILL_DIR to see details." >&2
     exit 3
   fi
 fi
