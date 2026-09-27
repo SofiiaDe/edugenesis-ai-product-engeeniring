@@ -44,28 +44,31 @@ final class Report {
     static void run(Args a) throws Exception {
         String runDir = a.get("run");
         if (runDir == null) throw new IllegalArgumentException("report needs --run <analysis output dir>");
-        Path dir = Path.of(runDir);
+        String out = a.get("out");
+        generate(Path.of(runDir), a.get("lang", "en"), a.get("notes"), a.get("title"), out == null ? null : Path.of(out));
+    }
+
+    /** Builds DIR/report.pdf (or {@code out}) from DIR/analysis.json. Used by `report` and by `analyze --report`. */
+    static void generate(Path dir, String lang, String notesArg, String title, Path out) throws Exception {
         Path json = dir.resolve("analysis.json");
         if (!Files.exists(json))
             throw new IllegalArgumentException("no analysis.json in " + dir + " - run analyze first");
+        if (!Set.of("en", "uk").contains(lang)) throw new IllegalArgumentException("report language must be en or uk, got '" + lang + "'");
         Analysis an = Main.GSON.fromJson(Files.readString(json, StandardCharsets.UTF_8), Analysis.class);
-        String lang = a.get("lang", "en");
         I18n t = I18n.of(lang);
         // charts are re-rendered in the report language
         Charts.trend(an, dir.resolve("trend.png"), t);
         Charts.growth(an, dir.resolve("growth.png"), t);
         Charts.trend(an, dir.resolve("trend-pdf.png"), t, Charts.W, 330); // flatter version sized for the page
         List<String> notes = new ArrayList<>();
-        String notesArg = a.get("notes");
         if (notesArg != null) notes = Files.readAllLines(Path.of(notesArg), StandardCharsets.UTF_8);
-        String title = a.get("title");
         if (title == null && !notes.isEmpty() && notes.getFirst().startsWith("# ")) { // "# Title" first line of notes.md
             title = notes.getFirst().substring(2).strip();
             notes = notes.subList(1, notes.size());
         }
         if (notes.isEmpty()) notes = AutoNotes.build(an, lang); // no --notes: conclusions written from the data
         if (title == null) title = an.question != null ? an.question : AutoNotes.title(an, lang);
-        Path out = Path.of(a.get("out", dir.resolve("report.pdf").toString()));
+        if (out == null) out = dir.resolve("report.pdf");
         try (PDDocument doc = new PDDocument()) {
             Report r = new Report(doc);
             r.loadFonts();

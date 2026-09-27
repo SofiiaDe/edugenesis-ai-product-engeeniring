@@ -21,6 +21,7 @@ automatically when sources change. Any option value can be read from a UTF-8 fil
 | `--no-redirects`                                   | off                                       | Do not add redirect views (auto-off when > 12 series).                                               |
 | `--question "..."`                                 | -                                         | Stored in outputs, default PDF title.                                                                |
 | `--chart-lang en\|uk`                              | en                                        | Labels of the PNG charts.                                                                            |
+| `--report en\|uk`                                  | -                                         | Also build `report.pdf` in the output folder (same as running `report` afterwards). Takes `--notes`/`--title` too. |
 | `--out DIR`                                        | `wiki-trends-runs/<topic>_<langs>`        | Output directory.                                                                                    |
 | `--spec DIR/spec.json`                             | -                                         | Re-run saved series (no topic resolution). Options above override the saved values.                  |
 | `--offline`                                        | off                                       | Cached responses only.                                                                               |
@@ -36,6 +37,8 @@ Outputs in `--out`:
 - `spec.json` - reproducible inputs; edit `series` (`topic`, `lang`, `titles`) to change articles.
 
 ## report
+
+One-step alternative: `analyze ... --report uk` builds the same PDF right after the analysis.
 
 `report --run DIR [--notes notes.md] [--title "..."] [--lang en|uk] [--out DIR/report.pdf]`
 

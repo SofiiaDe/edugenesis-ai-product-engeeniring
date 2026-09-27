@@ -152,6 +152,9 @@ public final class Main {
         String weights = a.get("weights");
         if (weights != null) spec.weights = parseWeights(weights);
         validate(spec);
+        String reportLang = a.get("report"); // checked before any download, so a typo fails fast
+        if (reportLang != null && !Set.of("en", "uk").contains(reportLang))
+            throw new IllegalArgumentException("--report must be en or uk, got '" + reportLang + "'");
 
         for (String art : a.all("article")) {
             int c = art.indexOf(':');
@@ -186,12 +189,14 @@ public final class Main {
         Files.writeString(dir.resolve("spec.json"), GSON.toJson(saved), StandardCharsets.UTF_8);
         Files.writeString(dir.resolve("analysis.json"), GSON.toJson(an), StandardCharsets.UTF_8);
         Outputs.writeCsv(an, dir.resolve("data.csv"));
-        String lang = a.get("chart-lang", "en");
+        String lang = a.get("chart-lang", reportLang != null ? reportLang : "en");
         Charts.trend(an, dir.resolve("trend.png"), I18n.of(lang));
         Charts.growth(an, dir.resolve("growth.png"), I18n.of(lang));
         String summary = Outputs.summary(an, dir);
         Files.writeString(dir.resolve("summary.md"), summary, StandardCharsets.UTF_8);
         out.print(summary);
+        // --report en|uk: build the PDF in the same run, into the same folder
+        if (reportLang != null) Report.generate(dir, reportLang, a.get("notes"), a.get("title"), null);
     }
 
     static void validate(Spec s) {
@@ -260,6 +265,7 @@ public final class Main {
                          [--months 36] [--end YYYY-MM] [--access all-access|desktop|mobile-web|mobile-app]
                          [--basis normalized|raw] [--weights volume=0.3,growth=0.5,confidence=0.2]
                          [--search-lang en] [--no-redirects] [--max-langs 40] [--question "..."] [--chart-lang en|uk] [--out DIR]
+                         [--report en|uk [--notes notes.md] [--title "..."]]   (also build DIR/report.pdf)
                 analyze  --spec DIR/spec.json [--months ..] [--end ..] [--basis ..] [--weights ..] [--out DIR2]
                          Fetch, analyse, write summary.md, analysis.json, data.csv, trend.png, growth.png, spec.json.
                 

@@ -90,6 +90,9 @@ bash SKILL_DIR/scripts/wiki-trends report --run wiki-trends-runs/fasting-pl-cs -
 `--lang uk|en` sets chart and table labels. The PDF adds charts, the numbers table, automatic caveats and the
 method. If the output says notes were truncated, shorten notes.md and re-run. Give the user the PDF path.
 
+Only when the user wants a quick PDF without your commentary: `analyze ... --report uk` builds it in the same run,
+with conclusions generated from the data. Otherwise write notes.md as above: your notes answer the user's question.
+
 ### 6. Checklist before you reply
 
 - [ ] Every direction word matches the "Plain-language reading" in summary.md (STABLE is not growth; UNCERTAIN is not a
