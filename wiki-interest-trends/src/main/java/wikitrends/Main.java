@@ -203,6 +203,7 @@ public final class Main {
 
     /** Country codes people often type instead of Wikipedia language codes. */
     private static final Map<String, String> LANG_HINTS = Map.ofEntries(
+            Map.entry("ge", "ka (Georgian) or de (German)"), Map.entry("ua", "uk (Ukrainian)"), Map.entry("cz", "cs (Czech)"),
             Map.entry("gr", "el (Greek)"), Map.entry("jp", "ja (Japanese)"), Map.entry("cn", "zh (Chinese)"),
             Map.entry("kr", "ko (Korean)"), Map.entry("dk", "da (Danish)"), Map.entry("se", "sv (Swedish)"),
             Map.entry("ee", "et (Estonian)"), Map.entry("by", "be (Belarusian)"), Map.entry("rs", "sr (Serbian)"),
