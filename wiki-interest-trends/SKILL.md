@@ -59,7 +59,7 @@ It prints `summary.md` (read it fully) and writes `analysis.json`, `data.csv`, `
    really covers the topic. Tell the user which proxy you used, or that none exists.
 3. **Direction + confidence**: use the table's words. Say "growing" only if direction is GROWING. If UNCERTAIN or
    confidence LOW, say the data does not support a trend, and give the failed checks as the reason.
-4. **Raw vs normalized**: if "YoY raw" and "GROWTH" differ in sign or by >15 points, report both and explain
+4. **Raw vs normalized**: if "raw YoY" and "GROWTH" differ in sign or by >15 points, report both and explain
    that the whole Wikipedia's traffic changed ("wiki YoY").
 5. **Spikes / seasonality**: spike months = one-off events; recurring peaks (e.g. Sep = school year) are seasonal.
 6. **Volume**: under ~1,000 views/month numbers are noisy; under 200 treat as anecdotal.
@@ -114,12 +114,12 @@ method. If the output says notes were truncated, shorten notes.md and re-run. Gi
 ## Reading summary.md
 
 - `views/mo`: average human views per month over the last 12 months (article + redirects).
-- `per 1M wiki views`: share of the whole language edition; compares interest intensity across languages.
-- `GROWTH`: headline growth (last 12 months vs previous 12, normalized by default). `YoY raw`: same on raw views.
+- `per 1M`: views per million views of the whole language edition; compares interest intensity across languages.
+- `GROWTH`: headline growth (last 12 months vs previous 12, normalized by default). `raw YoY`: same on raw views.
   `wiki YoY`: growth of the whole language edition.
 - `trend/yr`: robust Theil-Sen trend over the full period. `MK p`: Mann-Kendall p-value (< 0.05 = real trend).
-- `up months`: of the last 12 months, how many beat the same month a year earlier (8+/12 = broad-based growth).
-- `season peak/low`: typical peak and low month and their ratio.
+- `up mo.`: of the last 12 months, how many beat the same month a year earlier (8+/12 = broad-based growth).
+- `season`: typical peak and low month and their ratio.
 - `direction`: GROWING / DECLINING (|growth| >= 10% and significant), STABLE (< 10%), UNCERTAIN (moves but not
   significant).
 - `confidence`: HIGH / MEDIUM / LOW from explicit checks; reasons are listed under the table.

@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -108,12 +110,12 @@ final class Charts {
             for (double v = 0; v <= hi + 1e-9; v += step) ticks.add(v);
         }
         final double fhi = hi;
-        java.util.function.DoubleUnaryOperator y = v -> {
+        DoubleUnaryOperator y = v -> {
             double f = log ? (Math.log10(Math.max(v, lo)) - Math.log10(lo)) / (Math.log10(fhi) - Math.log10(lo)) : v / fhi;
             return plotTop + ph - f * ph;
         };
-        int n = rs.get(0).months.size();
-        java.util.function.IntToDoubleFunction x = i -> left + (n == 1 ? pw / 2.0 : i * (double) pw / (n - 1));
+        int n = rs.getFirst().months.size();
+        IntToDoubleFunction x = i -> left + (n == 1 ? pw / 2.0 : i * (double) pw / (n - 1));
 
         g.setStroke(new BasicStroke(1f));
         for (double tv : ticks) {
@@ -125,7 +127,7 @@ final class Charts {
             text(g, s, left - 8 - g.getFontMetrics().stringWidth(s), (int) yy + 4, 10.5f, Font.PLAIN, INK2);
         }
         int every = Math.max(1, (int) Math.ceil(n / 8.0));
-        List<String> months = rs.get(0).months;
+        List<String> months = rs.getFirst().months;
         for (int i = 0; i < n; i++) {
             boolean jan = months.get(i).endsWith("-01");
             if ((every >= 12 ? jan : i % every == 0)) {
@@ -173,7 +175,7 @@ final class Charts {
     }
 
     static void growth(Analysis an, Path file, I18n t) throws IOException {
-        List<SeriesResult> rs = an.series.stream().filter(r -> r.hasData).limit(15).collect(Collectors.toList());
+        List<SeriesResult> rs = an.series.stream().filter(r -> r.hasData).limit(15).toList();
         boolean yoy = rs.stream().allMatch(r -> r.yoyRaw != null);
         int rowH = 34;
         int h = Math.max(200, 70 + rs.size() * rowH + 16);
@@ -210,7 +212,7 @@ final class Charts {
         lo = lo < 0 ? lo - pad : 0;
         hi = hi + pad;
         final double flo = lo, fhi = hi;
-        java.util.function.DoubleUnaryOperator x = v -> left + (clip(v) - flo) / (fhi - flo) * pw;
+        DoubleUnaryOperator x = v -> left + (clip(v) - flo) / (fhi - flo) * pw;
         double x0 = x.applyAsDouble(0);
 
         for (int i = 0; i < rs.size(); i++) {
@@ -248,7 +250,7 @@ final class Charts {
     }
 
     private static double clip(Double v) {
-        return v == null ? 0 : Math.max(-1, Math.min(3, v));
+        return v == null ? 0 : Math.clamp(v, -1, 3);
     }
 
     static double niceStep(double raw) {

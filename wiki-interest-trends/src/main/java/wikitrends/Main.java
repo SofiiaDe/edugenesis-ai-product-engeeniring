@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.YearMonth;
 import java.util.*;
 
 public final class Main {
@@ -108,8 +109,8 @@ public final class Main {
         String q = a.get("query");
         if (lang == null || q == null) throw new IllegalArgumentException("search needs --lang and --query");
         WikiApi api = new WikiApi(http(a));
-        List<WikiApi.SearchHit> hits = api.search(lang, q, Integer.parseInt(a.get("limit", "8")));
-        java.time.YearMonth end = Pipeline.defaultEnd(), start = end.minusMonths(11);
+        List<WikiApi.SearchHit> hits = api.search(lang, q, a.getInt("limit", 8));
+        YearMonth end = Pipeline.defaultEnd(), start = end.minusMonths(11);
         out.println("Search '" + q + "' in " + lang + ".wikipedia (views = human views, " + start + ".." + end + ", without redirects)");
         out.println("| title | wikidata | description | views/mo |");
         out.println("|---|---|---|---|");
@@ -125,7 +126,8 @@ public final class Main {
 
     static void analyze(Args a) throws Exception {
         Spec spec;
-        Path specPath = a.get("spec") != null ? Path.of(a.get("spec")) : null;
+        String specArg = a.get("spec");
+        Path specPath = specArg != null ? Path.of(specArg) : null;
         if (specPath != null) {
             spec = GSON.fromJson(Files.readString(specPath, StandardCharsets.UTF_8), Spec.class);
             // flags passed together with --spec override the saved assumptions
@@ -138,16 +140,17 @@ public final class Main {
             spec.langs = new ArrayList<>(a.list("langs"));
             if (spec.langs.isEmpty()) spec.langs.add(a.get("search-lang", "en"));
         }
-        if (a.get("question") != null) spec.question = a.get("question");
-        if (a.get("search-lang") != null) spec.searchLang = a.get("search-lang");
-        if (a.get("months") != null) spec.months = Integer.parseInt(a.get("months"));
-        if (a.get("end") != null) spec.end = a.get("end");
-        else if (specPath == null) spec.end = null;
-        if (a.get("access") != null) spec.access = a.get("access");
+        // options passed on the command line override the spec's (or the default) values
+        spec.question = a.get("question", spec.question);
+        spec.searchLang = a.get("search-lang", spec.searchLang);
+        spec.months = a.getInt("months", spec.months);
+        spec.end = a.get("end", spec.end);
+        spec.access = a.get("access", spec.access);
         if (a.flag("no-redirects")) spec.redirects = false;
-        if (a.get("max-langs") != null) spec.maxLangs = Integer.parseInt(a.get("max-langs"));
-        if (a.get("basis") != null) spec.growthBasis = a.get("basis");
-        if (a.get("weights") != null) spec.weights = parseWeights(a.get("weights"));
+        spec.maxLangs = a.getInt("max-langs", spec.maxLangs);
+        spec.growthBasis = a.get("basis", spec.growthBasis);
+        String weights = a.get("weights");
+        if (weights != null) spec.weights = parseWeights(weights);
         validate(spec);
 
         for (String art : a.all("article")) {
@@ -156,7 +159,7 @@ public final class Main {
                 throw new IllegalArgumentException("--article must look like lang:Title (e.g. uk:Астрономія); several titles: uk:Title1|Title2");
             String lang = art.substring(0, c).trim();
             List<String> titles = Arrays.stream(art.substring(c + 1).split("\\|")).map(String::trim).filter(s -> !s.isEmpty()).toList();
-            String label = a.get("label", titles.get(0));
+            String label = a.get("label", titles.getFirst());
             spec.series.add(new SeriesSpec(label, lang, titles));
         }
         if (spec.topics.isEmpty() && spec.series.isEmpty())
@@ -222,7 +225,7 @@ public final class Main {
     }
 
     static String defaultRunName(Spec s) {
-        String base = !s.topics.isEmpty() ? String.join("_", s.topics) : s.series.isEmpty() ? "run" : s.series.get(0).topic;
+        String base = !s.topics.isEmpty() ? String.join("_", s.topics) : s.series.isEmpty() ? "run" : s.series.getFirst().topic;
         return Model.slug(base) + "_" + String.join("-", s.langs.isEmpty() ? List.of("custom") : s.langs);
     }
 

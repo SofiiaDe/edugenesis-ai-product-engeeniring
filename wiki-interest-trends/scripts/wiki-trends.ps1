@@ -18,8 +18,9 @@ if (-not $needsBuild) {
     $needsBuild = $null -ne $changed
 }
 if ($needsBuild) {
-    [Console]::Error.WriteLine('[wiki-trends] building from source (first run, about a minute)...')
-    $mvn = if (Get-Command mvn -ErrorAction SilentlyContinue) { 'mvn' } else { Join-Path $SkillDir 'mvnw.cmd' }
+    [Console]::Error.WriteLine('[wiki-trends] building from source (first run or after code changes, about a minute)...')
+    # always the Maven Wrapper: pins the Maven version (.mvn/wrapper) for reproducible builds
+    $mvn = Join-Path $SkillDir 'mvnw.cmd'
     Push-Location $SkillDir
     # Windows PowerShell 5.1 turns any native stderr line into a terminating error under 'Stop'
     $ErrorActionPreference = 'Continue'

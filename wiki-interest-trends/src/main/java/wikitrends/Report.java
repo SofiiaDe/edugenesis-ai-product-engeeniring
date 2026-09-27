@@ -9,13 +9,12 @@ import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import wikitrends.Model.Analysis;
 import wikitrends.Model.Check;
 import wikitrends.Model.SeriesResult;
 
 import javax.imageio.ImageIO;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.List;
 
 /**
  * One-page A4 PDF: agent's conclusions + generated charts, key-number table and automatic caveats.
@@ -56,10 +56,11 @@ final class Report {
         Charts.growth(an, dir.resolve("growth.png"), t);
         Charts.trend(an, dir.resolve("trend-pdf.png"), t, Charts.W, 330); // flatter version sized for the page
         List<String> notes = new ArrayList<>();
-        if (a.get("notes") != null) notes = Files.readAllLines(Path.of(a.get("notes")), StandardCharsets.UTF_8);
+        String notesArg = a.get("notes");
+        if (notesArg != null) notes = Files.readAllLines(Path.of(notesArg), StandardCharsets.UTF_8);
         String title = a.get("title");
-        if (title == null && !notes.isEmpty() && notes.get(0).startsWith("# ")) { // "# Title" first line of notes.md
-            title = notes.get(0).substring(2).strip();
+        if (title == null && !notes.isEmpty() && notes.getFirst().startsWith("# ")) { // "# Title" first line of notes.md
+            title = notes.getFirst().substring(2).strip();
             notes = notes.subList(1, notes.size());
         }
         if (title == null) title = an.question != null ? an.question : t.t("trend.title");
@@ -276,7 +277,7 @@ final class Report {
         for (String raw : notes) {
             String s = raw.strip().replace("**", "").replace("__", "");
             if (s.isEmpty()) {
-                if (!out.isEmpty() && !out.get(out.size() - 1)[0].equals("gap")) out.add(new String[]{"gap", ""});
+                if (!out.isEmpty() && !out.getLast()[0].equals("gap")) out.add(new String[]{"gap", ""});
                 continue;
             }
             if (s.startsWith("#")) {
@@ -340,8 +341,8 @@ final class Report {
         List<String> out = new ArrayList<>();
         StringBuilder line = new StringBuilder();
         for (String word : clean(s).split(" ")) {
-            String cand = line.length() == 0 ? word : line + " " + word;
-            if (width(cand, f, size) <= maxW || line.length() == 0) {
+            String cand = line.isEmpty() ? word : line + " " + word;
+            if (width(cand, f, size) <= maxW || line.isEmpty()) {
                 line.setLength(0);
                 line.append(cand);
             } else {
@@ -350,7 +351,7 @@ final class Report {
                 line.append(word);
             }
         }
-        if (line.length() > 0) out.add(line.toString());
+        if (!line.isEmpty()) out.add(line.toString());
         return out;
     }
 

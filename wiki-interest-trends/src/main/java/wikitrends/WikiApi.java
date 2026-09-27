@@ -72,7 +72,7 @@ public final class WikiApi {
                 if (alternatives.isEmpty()) {
                     return new Resolution(query, null, null, null, "not-found", alternatives, new TreeMap<>());
                 }
-                qid = alternatives.get(0).qid();
+                qid = alternatives.getFirst().qid();
                 method = "search:" + searchLang + " (first hit - verify!)";
             }
             final String chosen = qid;

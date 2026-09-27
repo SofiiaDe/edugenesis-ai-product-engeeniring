@@ -6,6 +6,7 @@ import wikitrends.Model.SeriesResult;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Turns monthly view counts into decision-ready metrics and an explicit, rule-based confidence grade.
@@ -143,7 +144,8 @@ public final class Analyzer {
         while (leading < n && raw[leading] < 0.1 * med) leading++;
         boolean coverageOk = leading < 2;
         c.add(new Check("coverage", coverageOk, !coverageOk, coverageOk ? "article has views across the whole period"
-                : "first " + leading + " months (from " + r.months.get(0) + ") near zero: article created, renamed or merged during the period - growth is an artefact"));
+                : "first " + leading + " months (from " + r.months.getFirst() +
+                ") near zero: article created, renamed or merged during the period - growth is an artefact"));
 
         long criticalFails = c.stream().filter(x -> !x.passed && x.critical).count();
         long minorFails = c.stream().filter(x -> !x.passed && !x.critical).count();
@@ -158,7 +160,7 @@ public final class Analyzer {
      */
     static void seasonality(SeriesResult r, double[] raw) {
         int n = raw.length;
-        Map<Integer, Integer> spikeCount = new java.util.TreeMap<>();
+        Map<Integer, Integer> spikeCount = new TreeMap<>();
         for (String m : r.spikeMonths) spikeCount.merge(Integer.parseInt(m.substring(5, 7)), 1, Integer::sum);
         spikeCount.forEach((m, k) -> {
             if (k >= 2) r.recurringSpikeMonths.add(MON[m - 1]);
@@ -193,7 +195,8 @@ public final class Analyzer {
      * Ranks series with user-adjustable weights. Components are min-max scaled across the compared series.
      */
     public static void score(List<SeriesResult> rs, Map<String, Double> weights) {
-        double wv = weights.getOrDefault("volume", 0.0), wg = weights.getOrDefault("growth", 0.0), wc = weights.getOrDefault("confidence", 0.0);
+        double wv = weights.getOrDefault("volume", 0.0), wg = weights.getOrDefault("growth", 0.0),
+                wc = weights.getOrDefault("confidence", 0.0);
         double wsum = wv + wg + wc;
         if (wsum <= 0) {
             wv = wg = wc = 1;
@@ -225,7 +228,7 @@ public final class Analyzer {
     }
 
     private static double clipGrowth(double g) {
-        return Math.max(-0.5, Math.min(1.0, g));
+        return Math.clamp(g, -0.5, 1.0);
     }
 
     private static double scale(double x, double min, double max) {

@@ -1,5 +1,9 @@
 package wikitrends;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -28,7 +32,7 @@ final class Args {
                 if (i + 1 >= argv.length) throw new IllegalArgumentException("--" + key + " needs a value");
                 val = argv[++i];
             }
-            values.computeIfAbsent(key, k -> new ArrayList<>()).add(fromFile(val));
+            values.computeIfAbsent(key, _ -> new ArrayList<>()).add(fromFile(val));
         }
     }
 
@@ -37,11 +41,11 @@ final class Args {
      */
     private static String fromFile(String val) {
         if (val.startsWith("@") && val.length() > 1) {
-            java.nio.file.Path p = java.nio.file.Path.of(val.substring(1));
-            if (java.nio.file.Files.isRegularFile(p)) {
+            Path p = Path.of(val.substring(1));
+            if (Files.isRegularFile(p)) {
                 try {
-                    return java.nio.file.Files.readString(p, java.nio.charset.StandardCharsets.UTF_8).strip();
-                } catch (java.io.IOException e) {
+                    return Files.readString(p, StandardCharsets.UTF_8).strip();
+                } catch (IOException e) {
                     throw new IllegalArgumentException("cannot read " + p + ": " + e.getMessage());
                 }
             }
@@ -51,12 +55,22 @@ final class Args {
 
     String get(String key) {
         List<String> v = values.get(key);
-        return v == null ? null : v.get(v.size() - 1);
+        return v == null ? null : v.getLast();
     }
 
     String get(String key, String def) {
         String v = get(key);
         return v == null ? def : v;
+    }
+
+    int getInt(String key, int def) {
+        String v = get(key);
+        if (v == null) return def;
+        try {
+            return Integer.parseInt(v.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("--" + key + " must be a whole number, got '" + v + "'");
+        }
     }
 
     List<String> all(String key) {
@@ -68,7 +82,7 @@ final class Args {
      */
     List<String> list(String key) {
         List<String> out = new ArrayList<>();
-        for (String v : all(key)) for (String p : v.split("[,;\s]+")) if (!p.isBlank()) out.add(p.trim());
+        for (String v : all(key)) for (String p : v.split("[,; ]+")) if (!p.isBlank()) out.add(p.trim());
         return out;
     }
 

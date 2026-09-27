@@ -1,29 +1,29 @@
 # CLI reference
 
 Launcher: `scripts/wiki-trends` (bash), `scripts/wiki-trends.ps1` (PowerShell), `scripts/wiki-trends.cmd` (cmd.exe).
-First run builds `target/wiki-interest-trends.jar` with Maven (or the bundled Maven Wrapper `mvnw`); it is rebuilt
+First run builds `target/wiki-interest-trends.jar` with the bundled Maven Wrapper `mvnw` (Maven 3.9.16, downloaded once to `~/.m2/wrapper`); it is rebuilt
 automatically when sources change. Any option value can be read from a UTF-8 file: `--title @title.txt`.
 
 ## analyze
 
-| Option                                        | Default                              | Meaning                                                                                              |
-|-----------------------------------------------|--------------------------------------|------------------------------------------------------------------------------------------------------|
-| `--topic T` (repeatable)                      | -                                    | Topic name (article title in `--search-lang` Wikipedia, else Wikidata search) or Wikidata id `Q123`. |
-| `--langs a,b`                                 | search-lang                          | Wikipedia language codes, or `all` (editions that have the article, largest first).                  |
-| `--max-langs N`                               | 40                                   | Cap for `--langs all`.                                                                               |
-| `--article lang:Title[\|Title2]` (repeatable) | -                                    | Manual series; several titles are summed. Combine with `--label "Name"`.                             |
-| `--search-lang L`                             | en                                   | Language used to look up `--topic`.                                                                  |
-| `--months N`                                  | 36                                   | Months in the window (3-130).                                                                        |
-| `--end YYYY-MM`                               | last complete month                  | Last month included.                                                                                 |
-| `--access`                                    | all-access                           | `all-access`, `desktop`, `mobile-web`, `mobile-app`.                                                 |
-| `--basis`                                     | normalized                           | `normalized` (share of edition traffic) or `raw`.                                                    |
-| `--weights`                                   | volume=0.3,growth=0.5,confidence=0.2 | Score weights.                                                                                       |
-| `--no-redirects`                              | off                                  | Do not add redirect views (auto-off when > 12 series).                                               |
-| `--question "..."`                            | -                                    | Stored in outputs, default PDF title.                                                                |
-| `--chart-lang en\|uk`                         | en                                   | Labels of the PNG charts.                                                                            |
-| `--out DIR`                                   | `wiki-trends-runs/<topic>_<langs>`   | Output directory.                                                                                    |
-| `--spec DIR/spec.json`                        | -                                    | Re-run saved series (no topic resolution). Options above override the saved values.                  |
-| `--offline`                                   | off                                  | Cached responses only.                                                                               |
+| Option                                             | Default                                   | Meaning                                                                                              |
+|----------------------------------------------------|-------------------------------------------|------------------------------------------------------------------------------------------------------|
+| `--topic T` (repeatable)                           | -                                         | Topic name (article title in `--search-lang` Wikipedia, else Wikidata search) or Wikidata id `Q123`. |
+| `--langs a,b`                                      | search-lang                               | Wikipedia language codes, or `all` (editions that have the article, largest first).                  |
+| `--max-langs N`                                    | 40                                        | Cap for `--langs all`.                                                                               |
+| `--article lang:Title[\|Title2]` <br/>(repeatable) | -                                         | Manual series; several titles are summed. Combine with `--label "Name"`.                             |
+| `--search-lang L`                                  | en                                        | Language used to look up `--topic`.                                                                  |
+| `--months N`                                       | 36                                        | Months in the window (3-130).                                                                        |
+| `--end YYYY-MM`                                    | last complete month                       | Last month included.                                                                                 |
+| `--access`                                         | all-access                                | `all-access`, `desktop`, `mobile-web`, `mobile-app`.                                                 |
+| `--basis`                                          | normalized                                | `normalized` (share of edition traffic) or `raw`.                                                    |
+| `--weights`                                        | volume=0.3,growth=0.5,<br/>confidence=0.2 | Score weights.                                                                                       |
+| `--no-redirects`                                   | off                                       | Do not add redirect views (auto-off when > 12 series).                                               |
+| `--question "..."`                                 | -                                         | Stored in outputs, default PDF title.                                                                |
+| `--chart-lang en\|uk`                              | en                                        | Labels of the PNG charts.                                                                            |
+| `--out DIR`                                        | `wiki-trends-runs/<topic>_<langs>`        | Output directory.                                                                                    |
+| `--spec DIR/spec.json`                             | -                                         | Re-run saved series (no topic resolution). Options above override the saved values.                  |
+| `--offline`                                        | off                                       | Cached responses only.                                                                               |
 
 Outputs in `--out`:
 

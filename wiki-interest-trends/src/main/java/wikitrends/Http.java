@@ -144,7 +144,7 @@ public final class Http {
 
     private void write(Path file, String body) throws IOException {
         Files.createDirectories(file.getParent());
-        Path tmp = file.resolveSibling(file.getFileName() + "." + Thread.currentThread().getId() + ".tmp");
+        Path tmp = file.resolveSibling(file.getFileName() + "." + Thread.currentThread().threadId() + ".tmp");
         Files.writeString(tmp, body, StandardCharsets.UTF_8);
         Files.move(tmp, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
     }

@@ -48,7 +48,8 @@ public final class Pipeline {
             info.put("missingLangs", missing);
             out.resolutions.add(info);
             if (res.qid() == null) {
-                out.warnings.add("Could not resolve topic '" + topic + "'. Try the exact article title in --search-lang, a Wikidata --topic Q-id, or --article lang:Title.");
+                out.warnings.add("Could not resolve topic '" + topic +
+                        "'. Try the exact article title in --search-lang, a Wikidata --topic Q-id, or --article lang:Title.");
                 continue;
             }
             String label = res.label() != null ? res.label() : topic;
