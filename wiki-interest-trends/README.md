@@ -57,30 +57,29 @@ wiki-interest-trends/
 
 ```bash
 cd <корінь-репозиторію>
-bash wiki-interest-trends/scripts/wiki-trends analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
-bash wiki-interest-trends/scripts/wiki-trends report --run wiki-trends-runs/fasting --lang uk
+bash wiki-interest-trends/scripts/wiki-trends analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting --report uk
 ```
 
 **PowerShell (Windows):**
 
 ```powershell
 cd <корінь-репозиторію>
-& .\wiki-interest-trends\scripts\wiki-trends.ps1 analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
-& .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/fasting --lang uk
+& .\wiki-interest-trends\scripts\wiki-trends.ps1 analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting --report uk
 ```
 
 **cmd.exe** (або PowerShell, якщо запуск `.ps1` заборонено політикою виконання):
 
 ```bat
 cd <корінь-репозиторію>
-wiki-interest-trends\scripts\wiki-trends.cmd analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting
-wiki-interest-trends\scripts\wiki-trends.cmd report --run wiki-trends-runs/fasting --lang uk
+wiki-interest-trends\scripts\wiki-trends.cmd analyze --topic "Intermittent fasting" --langs pl,cs --months 24 --out wiki-trends-runs/fasting --report uk
 ```
 
 У PowerShell перед шляхом до `.cmd` додайте `.\`: `.\wiki-interest-trends\scripts\wiki-trends.cmd analyze ...`.
 
 Запускати можна з будь-якої папки, якщо вказати повний шлях до скрипта: він сам знаходить свій jar, а результати
-пишуться відносно поточної папки. Без `--notes` звіт сам пише висновки з даних (напрям, довіра, прогалини в контенті, наступні кроки). Щоб додати власні висновки, передайте `--notes файл.md` (перший рядок `# Заголовок`, далі 5–8 пунктів; зразок — [examples/notes-example.md](examples/notes-example.md)). Агент у Claude Code пише такий файл сам.
+пишуться відносно поточної папки. Кожна тема — окрема папка (`--out`), у ній дані, графіки й `report.pdf`.
+`--report uk|en` створює PDF у тому ж запуску; окрема команда `report --run <папка> --lang uk` перебудовує PDF з уже
+зібраних даних (наприклад, іншою мовою). Без `--notes` звіт сам пише висновки з даних (напрям, довіра, прогалини в контенті, наступні кроки). Щоб додати власні висновки, передайте `--notes файл.md` (перший рядок `# Заголовок`, далі 5–8 пунктів; зразок — [examples/notes-example.md](examples/notes-example.md)). Агент у Claude Code пише такий файл сам.
 
 ### Приклад: тема українською, аналіз і PDF одним рядком (PowerShell)
 
@@ -88,7 +87,7 @@ wiki-interest-trends\scripts\wiki-trends.cmd report --run wiki-trends-runs/fasti
 Запускайте з кореня репозиторію:
 
 ```powershell
-& .\wiki-interest-trends\scripts\wiki-trends.ps1 analyze --topic "Кешбек" --search-lang uk --langs pl,uk,ro,en --months 36 --out wiki-trends-runs/cashback; & .\wiki-interest-trends\scripts\wiki-trends.ps1 report --run wiki-trends-runs/cashback --lang uk; Invoke-Item wiki-trends-runs\cashback\report.pdf
+& .\wiki-interest-trends\scripts\wiki-trends.ps1 analyze --topic "Кешбек" --search-lang uk --langs pl,uk,ro,en --months 36 --out wiki-trends-runs/cashback --report uk; Invoke-Item wiki-trends-runs\cashback\report.pdf
 ```
 
 `--search-lang uk` потрібен, бо назва теми українською. Команди розділені `;` (у PowerShell 5.1 `&&` і `&` як роздільник не працюють).
@@ -115,6 +114,7 @@ wiki-interest-trends\scripts\wiki-trends.cmd report --run wiki-trends-runs/fasti
 | `--max-langs` | `40` | Скільки розділів брати для `--langs all` | `--max-langs 60` |
 | `--no-redirects` | вимкнено | Не додавати перегляди через перенаправлення | `--no-redirects` |
 | `--question` | — | Питання користувача; показується в summary і як заголовок PDF | `--question "Чи росте інтерес до кешбеку?"` |
+| `--report` | — | Одразу створити `report.pdf` у тій самій папці: `en` або `uk` (разом можна `--notes`, `--title`) | `--report uk` |
 | `--chart-lang` | `en` | Мова підписів на PNG-графіках: `en` або `uk` | `--chart-lang uk` |
 | `--spec` | — | Перезапустити збережені ряди з `spec.json` з іншими параметрами | `--spec wiki-trends-runs/cashback/spec.json --months 60` |
 | `--offline` | вимкнено | Лише кешовані дані, без мережі | `--offline` |

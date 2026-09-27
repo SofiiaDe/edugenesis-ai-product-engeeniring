@@ -152,6 +152,9 @@ public final class Main {
         String weights = a.get("weights");
         if (weights != null) spec.weights = parseWeights(weights);
         validate(spec);
+        String reportLang = a.get("report"); // checked before any download, so a typo fails fast
+        if (reportLang != null && !Set.of("en", "uk").contains(reportLang))
+            throw new IllegalArgumentException("--report must be en or uk, got '" + reportLang + "'");
 
         for (String art : a.all("article")) {
             int c = art.indexOf(':');
@@ -170,7 +173,9 @@ public final class Main {
         Pipeline p = new Pipeline(api);
         Analysis an = new Analysis();
         an.generatedAt = Instant.now().toString();
+        checkLangs(api, spec);
         if (specPath == null) p.resolveTopics(spec, an);
+        if (spec.series.isEmpty()) throw new IllegalArgumentException(notFound(api, spec));
         else an.warnings.add("series taken from " + specPath);
         dedupeIds(spec.series);
         String userEnd = spec.end; // keep "latest complete month" semantics on re-runs unless the user pinned --end
@@ -186,12 +191,61 @@ public final class Main {
         Files.writeString(dir.resolve("spec.json"), GSON.toJson(saved), StandardCharsets.UTF_8);
         Files.writeString(dir.resolve("analysis.json"), GSON.toJson(an), StandardCharsets.UTF_8);
         Outputs.writeCsv(an, dir.resolve("data.csv"));
-        String lang = a.get("chart-lang", "en");
+        String lang = a.get("chart-lang", reportLang != null ? reportLang : "en");
         Charts.trend(an, dir.resolve("trend.png"), I18n.of(lang));
         Charts.growth(an, dir.resolve("growth.png"), I18n.of(lang));
         String summary = Outputs.summary(an, dir);
         Files.writeString(dir.resolve("summary.md"), summary, StandardCharsets.UTF_8);
         out.print(summary);
+        // --report en|uk: build the PDF in the same run, into the same folder
+        if (reportLang != null) Report.generate(dir, reportLang, a.get("notes"), a.get("title"), null);
+    }
+
+    /** Country codes people often type instead of Wikipedia language codes. */
+    private static final Map<String, String> LANG_HINTS = Map.ofEntries(
+            Map.entry("ge", "ka (Georgian) or de (German)"), Map.entry("ua", "uk (Ukrainian)"), Map.entry("cz", "cs (Czech)"),
+            Map.entry("gr", "el (Greek)"), Map.entry("jp", "ja (Japanese)"), Map.entry("cn", "zh (Chinese)"),
+            Map.entry("kr", "ko (Korean)"), Map.entry("dk", "da (Danish)"), Map.entry("se", "sv (Swedish)"),
+            Map.entry("ee", "et (Estonian)"), Map.entry("by", "be (Belarusian)"), Map.entry("rs", "sr (Serbian)"),
+            Map.entry("il", "he (Hebrew)"), Map.entry("br", "pt (Portuguese)"), Map.entry("mx", "es (Spanish)"),
+            Map.entry("us", "en (English)"), Map.entry("gb", "en (English)"), Map.entry("at", "de (German)"),
+            Map.entry("ir", "fa (Persian)"), Map.entry("in", "hi (Hindi) or en"), Map.entry("vn", "vi (Vietnamese)"),
+            Map.entry("kz", "kk (Kazakh)"), Map.entry("si", "sl (Slovenian)"), Map.entry("am", "hy (Armenian)"));
+
+    /** Fails before any download if a language code is not an open Wikipedia edition (e.g. "ge"). */
+    static void checkLangs(WikiApi api, Spec spec) throws java.io.IOException {
+        Set<String> codes = new LinkedHashSet<>(spec.langs);
+        for (SeriesSpec s : spec.series) codes.add(s.lang);
+        codes.remove("all");
+        if (codes.isEmpty()) return;
+        Set<String> known = api.wikipediaLangs();
+        List<String> bad = new ArrayList<>();
+        for (String c : codes) {
+            if (known.contains(c)) continue;
+            String hint = LANG_HINTS.get(c.toLowerCase(Locale.ROOT));
+            bad.add("'" + c + "'" + (hint != null ? " (did you mean " + hint + "?)" : ""));
+        }
+        if (!bad.isEmpty())
+            throw new IllegalArgumentException("unknown Wikipedia language code " + String.join(", ", bad)
+                    + ". Use Wikipedia codes, not country codes: uk, pl, de, ka, cs, en ...");
+    }
+
+    /** Error text when no topic could be resolved: suggests real articles found by full-text search. */
+    static String notFound(WikiApi api, Spec spec) throws java.io.IOException {
+        StringBuilder sb = new StringBuilder();
+        for (String topic : spec.topics) {
+            sb.append("topic '").append(topic).append("' has no article with this exact title in ")
+                    .append(spec.searchLang).append(".wikipedia.");
+            List<WikiApi.SearchHit> hits = api.search(spec.searchLang, topic, 5);
+            if (!hits.isEmpty()) {
+                sb.append(" Similar articles (use the title as --topic, or the Q-id):");
+                for (WikiApi.SearchHit h : hits)
+                    sb.append("\n  ").append(h.title()).append(h.qid() != null ? "  (" + h.qid() + ")" : "")
+                            .append(h.description() != null ? " - " + h.description() : "");
+            }
+            sb.append('\n');
+        }
+        return sb.append("Nothing to analyse, no report written.").toString();
     }
 
     static void validate(Spec s) {
@@ -260,6 +314,7 @@ public final class Main {
                          [--months 36] [--end YYYY-MM] [--access all-access|desktop|mobile-web|mobile-app]
                          [--basis normalized|raw] [--weights volume=0.3,growth=0.5,confidence=0.2]
                          [--search-lang en] [--no-redirects] [--max-langs 40] [--question "..."] [--chart-lang en|uk] [--out DIR]
+                         [--report en|uk [--notes notes.md] [--title "..."]]   (also build DIR/report.pdf)
                 analyze  --spec DIR/spec.json [--months ..] [--end ..] [--basis ..] [--weights ..] [--out DIR2]
                          Fetch, analyse, write summary.md, analysis.json, data.csv, trend.png, growth.png, spec.json.
                 

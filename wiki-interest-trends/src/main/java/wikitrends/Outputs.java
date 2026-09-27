@@ -92,7 +92,7 @@ final class Outputs {
                     pct(r.growth), pct(r.yoyRaw), pct(r.projectYoy), pct(r.trendPctPerYear),
                     String.format(Locale.ROOT, "%.3f", r.mkP),
                     r.yoyUpMonths == null ? "n/a" : r.yoyUpMonths + "/12",
-                    r.peakMonth == null ? "n/a" : r.peakMonth + "/" + r.troughMonth + " x" + r.seasonalAmplitude,
+                    r.peakMonth == null || r.seasonalAmplitude == null ? "n/a" : r.peakMonth + "/" + r.troughMonth + " x" + r.seasonalAmplitude,
                     r.direction.toUpperCase(Locale.ROOT), r.confidence.toUpperCase(Locale.ROOT),
                     String.format(Locale.ROOT, "%.0f", r.score)});
         }
